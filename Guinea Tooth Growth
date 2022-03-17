@@ -1,0 +1,17 @@
+data('ToothGrowth')
+View(ToothGrowth)
+install.packages('dplyr')
+library(dplyr)
+
+filtered <- filter(ToothGrowth, dose==0.5)
+View(filtered)
+arrange(filtered, len)
+
+# example of using nested function or nesting
+arrange(filter(ToothGrowth, dose==0.5), len)
+
+# example of using pipe
+filtered_tg <- ToothGrowth %>%
+  filter(dose==0.5) %>%
+  group_by(supp) %>%
+  summarize(mean_lean = mean(len, na.rm=T),.group='drop')
