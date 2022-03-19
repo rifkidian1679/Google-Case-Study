@@ -1,0 +1,46 @@
+install.packages('tidyverse')
+library(tidyverse)
+daily_activities <- read.csv('dailyActivity_merged.csv')
+daily_calories <- read.csv('dailyCalories_merged.csv')
+daily_intensities <- read.csv('dailyIntensities_merged.csv')
+daily_steps <- read.csv('dailySteps_merged.csv')
+sleep_day <- read.csv('sleepDay_merged.csv')
+daily_activity <- read.csv('dailyActivities_merged.csv')
+colnames(daily_calories)
+colnames(daily_intensities)
+colnames(daily_steps)
+colnames(sleep_day)
+head(daily_steps)
+data1 <- merge(daily_activities, daily_calories, by="Id")
+data2 <- merge(daily_steps, sleep_day, by="Id")
+data3 <- merge(daily_activities, sleep_day, by="Id")
+colnames(data3)
+head(data1)
+head(data2)
+
+install.packages('ggplot2')
+library(ggplot2)
+ggplot(data=data2, aes(x=TotalMinutesAsleep, y=TotalTimeInBed)) + geom_point() + stat_smooth(method=lm)
+ggplot(data=data1)+
+  geom_smooth(mapping=aes(x=TotalDistance, y=Calories.y))
+
+ggplot(data=data1)+
+  geom_point(mapping=aes(x=TotalSteps, y=SedentaryMinutes))+
+  geom_smooth(mapping=aes(x=TotalSteps, y=SedentaryMinutes))
+
+ggplot(data=daily_activities, aes(x=VeryActiveMinutes, y=Calories))+
+  geom_point()+
+  stat_smooth(method=lm)
+ggplot(data=daily_activities, aes(x=FairlyActiveMinutes, y=Calories))+
+  geom_point()+
+  stat_smooth(method=lm)
+ggplot(data=daily_activities, aes(x=LightlyActiveMinutes, y=Calories))+
+  geom_point()+
+  stat_smooth(method=lm)
+ggplot(data=daily_activities, aes(x=SedentaryMinutes, y=Calories))+
+  geom_point()+
+  stat_smooth(method=lm)
+
+ggplot(data=daily_activity, aes(x=SedentaryMinutes, y=TotalMinutesAsleep))+
+  geom_point()+
+  stat_smooth(method=lm)
