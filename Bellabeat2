@@ -1,0 +1,58 @@
+install.packages('tidyverse')
+library(tidyverse)
+install.packages('lubridate')
+library(lubridate)
+install.packages('ggplot2')
+library(ggplot2)
+install.packages('janitor')
+library(janitor)
+install.packages('dplyr')
+library(dplyr)
+daily_activities <- read.csv('dailyActivity_merged.csv')
+sleep_day <- read.csv('sleepDay_merged.csv')
+hourly_steps <- read.csv('hourlySteps_merged.csv')
+hourly_calories <- read.csv('hourlyCalories_merged.csv')
+
+cleaned_daily_activities <- clean_names(daily_activities) %>%
+  rename(date=activity_date) %>%
+  remove_empty(which = c("rows")) %>%
+  remove_empty(which = c("cols"))
+cleaned_daily_activities$date <- as.Date(cleaned_daily_activities$date, format="%m/%d/%Y")
+
+cleaned_sleep_day <- clean_names(sleep_day) %>%
+  rename(date=sleep_day) %>%
+  remove_empty(which = c("rows")) %>%
+  remove_empty(which = c("cols"))
+cleaned_sleep_day$date <- as.Date(cleaned_sleep_day$date, format="%m/%d/%Y")
+
+cleaned_hourly_steps <- clean_names(hourly_steps) %>%
+  remove_empty(which = c("rows")) %>%
+  remove_empty(which = c("cols"))
+
+cleaned_hourly_calories <- clean_names(hourly_calories) %>%
+  remove_empty(which = c("rows")) %>%
+  remove_empty(which = c("cols"))
+
+sleepactivity_combined <- merge(cleaned_daily_activities, cleaned_sleep_day, by=c("id", "date"))
+n_distinct(sleepactivity_combined$id)
+
+ggplot(data=sleepactivity_combined, aes(x=sedentary_minutes, y=total_minutes_asleep))+
+  geom_point()+
+  stat_smooth(method=lm)
+
+colnames(sleepactivity_combined)
+
+sleepactivity_combined <- mutate(sleepactivity_combined, day=wday(date,label=TRUE))
+sleepactivity_summarized <- sleepactivity_combined %>%
+  group_by(day) %>%
+  summarise(average_daily_steps=mean(total_steps),
+            average_asleep_minutes=mean(total_minutes_asleep),
+            average_sedentary_minutes=mean(sedentary_minutes),
+            average_lightly_active_minutes=mean(lightly_active_minutes),
+            average_fairly_active_minutes=mean(fairly_active_minutes),
+            average_very_active_minutes=mean(very_active_minutes),
+            average_calories=mean(calories))
+head(sleepactivity_summarized)
+
+ggplot(data=sleepactivity_summarized)+
+  geom_col(mapping=aes(x=day, y=average_daily_steps))
